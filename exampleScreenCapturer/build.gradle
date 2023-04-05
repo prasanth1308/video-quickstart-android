@@ -1,4 +1,6 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.google.gms.google-services'
+
 
 android {
     compileSdkVersion versions.compileSdk
@@ -9,7 +11,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.twilio.video.examples.screencapturer"
+        applicationId 'com.tamemm.twilio.demo'
         minSdkVersion 21
         targetSdkVersion versions.targetSdk
         versionCode 1
@@ -36,4 +38,22 @@ dependencies {
     implementation "com.twilio:video-android:${versions.videoAndroid}"
     implementation "com.android.support:appcompat-v7:${versions.supportLibrary}"
     implementation "com.android.support:design:${versions.supportLibrary}"
+
+    implementation "com.android.volley:volley:1.2.1"     // adding volley dependency
+
+    // Import the Firebase BoM
+    implementation platform('com.google.firebase:firebase-bom:31.4.0')
+
+    // When using the BoM, you don't specify versions in Firebase library dependencies
+
+    implementation 'com.google.firebase:firebase-functions'
+
+    // TODO: Add the dependencies for any other Firebase products you want to use
+    // See https://firebase.google.com/docs/android/setup#available-libraries
+    // For example, add the dependencies for Firebase Authentication and Cloud Firestore
+    // implementation 'com.google.firebase:firebase-auth'
+    // implementation 'com.google.firebase:firebase-firestore'
+
+
+
 }

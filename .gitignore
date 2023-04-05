@@ -6,3 +6,6 @@ local.properties
 build
 *google-services.json
 .DS_Store
+*.apk
+exampleAdvancedCameraCapturer/debug/output-metadata.json
+exampleAdvancedCameraCapturer/release/output-metadata.json
