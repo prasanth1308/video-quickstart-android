@@ -15,6 +15,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
@@ -49,6 +50,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /** This example demonstrates how to use the screen capturer */
 public class ScreenCapturerActivity extends AppCompatActivity {
@@ -66,6 +68,11 @@ public class ScreenCapturerActivity extends AppCompatActivity {
     private RequestQueue mRequestQueue;
     private StringRequest mStringRequest;
     private String url = "https://twilio-dot-app-launcher-dev-5ef0fa0a.uc.r.appspot.com/token";
+
+    String tokenValue;
+    String roomName;
+
+    ProgressBar pgsBar;
 
     private final ScreenCapturer.Listener screenCapturerListener =
             new ScreenCapturer.Listener() {
@@ -95,6 +102,29 @@ public class ScreenCapturerActivity extends AppCompatActivity {
             screenCapturerManager = new ScreenCapturerManager(this);
         }
         mFunctions = FirebaseFunctions.getInstance();
+        pgsBar = (ProgressBar)findViewById(R.id.pBar);
+        pgsBar.setVisibility(View.GONE);
+
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            for (String key : bundle.keySet()) {
+                Log.i(TAG, key + " : " + (bundle.get(key) != null ? bundle.get(key) : "NULL"));
+            }
+        }
+
+        String fcmType = getIntent().getStringExtra("firebaseCloudMessageType");
+        roomName = getIntent().getStringExtra("roomId");
+
+        Log.i(TAG,  " fcmType " + fcmType);
+        Log.i(TAG,  " roomId " + roomName);
+
+        if (Objects.equals(fcmType, "REMOTE_ACCESS_REQUEST") && roomName != null) {
+            try {
+                getData(roomName, "TestUser");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
@@ -118,13 +148,18 @@ public class ScreenCapturerActivity extends AppCompatActivity {
             case R.id.share_screen_menu_item:
                 String shareScreen = getString(R.string.share_screen);
                 if (item.getTitle().equals(shareScreen)) {
-                    if (Build.VERSION.SDK_INT >= 29) {
-                        screenCapturerManager.startForeground();
-                    }
-                    if (screenCapturer == null) {
-                        requestScreenCapturePermission();
-                    } else {
-                        startScreenCapture();
+//                    if (Build.VERSION.SDK_INT >= 29) {
+//                        screenCapturerManager.startForeground();
+//                    }
+//                    if (screenCapturer == null) {
+//                        requestScreenCapturePermission();
+//                    } else {
+//                        startScreenCapture();
+//                    }
+                    try {
+                        getData("TestRoom", "TestUser");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
                 } else {
                     if (Build.VERSION.SDK_INT >= 29) {
@@ -139,7 +174,25 @@ public class ScreenCapturerActivity extends AppCompatActivity {
         }
     }
 
-    private void requestScreenCapturePermission() {
+    private void handleScreenShareTrigger(String roomName ,String token) {
+        Log.d(TAG, "Handling screen share trigger");
+        if(screenCapturerManager == null){
+            Log.d(TAG, "handleScreenShareTrigger screenCapturerManager null");
+        }
+        if (Build.VERSION.SDK_INT >= 29) {
+            Log.d(TAG, "handleScreenShareTrigger screenCapturerManager startForeground");
+            screenCapturerManager.startForeground();
+        }
+        if (screenCapturer == null) {
+            Log.d(TAG, "handleScreenShareTrigger screenCapturer null");
+            requestScreenCapturePermission(roomName, token);
+        } else {
+            Log.d(TAG, "handleScreenShareTrigger startScreenCapture");
+            startScreenCapture();
+        }
+    }
+
+    private void requestScreenCapturePermission(String roomName, String tokenValue) {
         Log.d(TAG, "Requesting permission to capture screen");
         MediaProjectionManager mediaProjectionManager =
                 (MediaProjectionManager) getSystemService(Context.MEDIA_PROJECTION_SERVICE);
@@ -161,6 +214,15 @@ public class ScreenCapturerActivity extends AppCompatActivity {
                 return;
             }
             screenCapturer = new ScreenCapturer(this, resultCode, data, screenCapturerListener);
+
+
+            Log.i(TAG, "onActivityResult START --------------------- " + data);
+            String fcmType = data.getStringExtra("firebaseCloudMessageType");
+            String roomId = data.getStringExtra("roomId");
+
+            Log.i(TAG,  " fcmType " + fcmType);
+            Log.i(TAG,  " roomId " + roomId);
+            Log.i(TAG, "onActivityResult END --------------------- " + data);
             startScreenCapture();
         }
     }
@@ -172,11 +234,8 @@ public class ScreenCapturerActivity extends AppCompatActivity {
 
 //        localVideoView.setVisibility(View.VISIBLE);
 //        screenVideoTrack.addSink(localVideoView);
-        try {
-            getData("Hello_TAM", "Android_Test");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+
+        connectToRoom(roomName, tokenValue);
     }
 
     private void stopScreenCapture() {
@@ -203,10 +262,13 @@ public class ScreenCapturerActivity extends AppCompatActivity {
             screenCapturerManager.unbindService();
         }
         super.onDestroy();
-        disconnectFromRoom();
+        if (room != null) {
+            disconnectFromRoom();
+        }
     }
 
     private void getData(String roomName, String identity) throws JSONException {
+        pgsBar.setVisibility(View.VISIBLE);
         // RequestQueue initialized
         mRequestQueue = Volley.newRequestQueue(this);
         JSONObject jsonBody = new JSONObject();
@@ -214,7 +276,6 @@ public class ScreenCapturerActivity extends AppCompatActivity {
         jsonBody.put("user_identity", identity);
         jsonBody.put("create_conversation", false);
         final String mRequestBody = jsonBody.toString();
-
 
         // String Request initialized
         mStringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
@@ -228,16 +289,19 @@ public class ScreenCapturerActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
                 try {
-                    String  tokenValue = jsonobject.getString("token");
-                    Log.i(TAG, "tokenValue getData :" + tokenValue);
+                    tokenValue = jsonobject.getString("token");
+                    handleScreenShareTrigger(roomName, tokenValue);
+                    // connectToRoom(roomName, tokenValue);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-                Toast.makeText(getApplicationContext(), "Response :" + response, Toast.LENGTH_LONG).show();//display the response on screen
+                pgsBar.setVisibility(View.GONE);
             }
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
+                pgsBar.setVisibility(View.GONE);
+                Toast.makeText(getApplicationContext(), "Error :" + error.toString(), Toast.LENGTH_LONG).show();//display the error on screen
                 Log.i(TAG, "Error getData :" + error.toString());
             }
         }) {
@@ -277,6 +341,7 @@ public class ScreenCapturerActivity extends AppCompatActivity {
             @Override
             public void onConnected(Room room) {
                 Log.d(TAG,"Connected to " + room.getName());
+                Toast.makeText(getApplicationContext(), "Success Connected to" + room.getName(), Toast.LENGTH_LONG).show();//display the response on screen
             }
 
             @Override

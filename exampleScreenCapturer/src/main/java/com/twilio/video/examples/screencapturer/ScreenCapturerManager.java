@@ -6,9 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.util.Log;
 
 @TargetApi(29)
 public class ScreenCapturerManager {
+    private static final String TAG = "SCREEN_CAPTURE";
     private ScreenCapturerService mService;
     private Context mContext;
     private State currentState = State.UNBIND_SERVICE;
@@ -50,11 +52,13 @@ public class ScreenCapturerManager {
     }
 
     void startForeground() {
+        Log.i(TAG,  " startForeground " + mService);
         mService.startForeground();
         currentState = State.START_FOREGROUND;
     }
 
     void endForeground() {
+        Log.i(TAG,  " endForeground " );
         mService.endForeground();
         currentState = State.END_FOREGROUND;
     }

@@ -1,12 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge xmlns:android="http://schemas.android.com/apk/res/android"
-       android:orientation="vertical"
-       android:keepScreenOn="true"
-       android:layout_width="match_parent"
-       android:layout_height="match_parent">
-    <com.twilio.video.VideoView
-        android:id="@+id/local_video"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:visibility="invisible"/>
-</merge>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <ProgressBar
+        android:id="@+id/pBar"
+        android:indeterminateTint="@color/colorPrimary"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerInParent="true"
+        android:visibility="visible"/>
+
+</RelativeLayout>
+<!--<merge xmlns:android="http://schemas.android.com/apk/res/android"-->
+<!--       android:orientation="vertical"-->
+<!--       android:keepScreenOn="true"-->
+<!--       android:layout_width="match_parent"-->
+<!--       android:layout_height="match_parent">-->
+<!--&lt;!&ndash;    <com.twilio.video.VideoView&ndash;&gt;-->
+<!--&lt;!&ndash;        android:id="@+id/local_video"&ndash;&gt;-->
+<!--&lt;!&ndash;        android:layout_width="match_parent"&ndash;&gt;-->
+<!--&lt;!&ndash;        android:layout_height="match_parent"&ndash;&gt;-->
+<!--&lt;!&ndash;        android:visibility="invisible"/>&ndash;&gt;-->
+
+<!--    <ProgressBar-->
+<!--        android:id="@+id/pBar"-->
+<!--        style="?android:attr/progressBarStyleLarge"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginTop="20dp"-->
+<!--        android:layout_centerHorizontal="true"-->
+<!--        android:visibility="visible"/>-->
+
+<!--</merge>-->
