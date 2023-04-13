@@ -3,12 +3,16 @@ package com.twilio.video.examples.screencapturer;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.enterprise.feedback.KeyedAppState;
+import androidx.enterprise.feedback.KeyedAppStatesCallback;
+import androidx.enterprise.feedback.KeyedAppStatesReporter;
 
 import android.util.Log;
 import android.view.Menu;
@@ -31,9 +35,6 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.FirebaseFunctionsException;
-import com.google.firebase.functions.HttpsCallableResult;
 import com.twilio.video.ConnectOptions;
 import com.twilio.video.LocalVideoTrack;
 import com.twilio.video.RemoteParticipant;
@@ -47,8 +48,10 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 
@@ -63,7 +66,6 @@ public class ScreenCapturerActivity extends AppCompatActivity {
     private MenuItem screenCaptureMenuItem;
     private ScreenCapturerManager screenCapturerManager;
     private Room room;
-    private FirebaseFunctions mFunctions;
 
     private RequestQueue mRequestQueue;
     private StringRequest mStringRequest;
@@ -73,6 +75,7 @@ public class ScreenCapturerActivity extends AppCompatActivity {
     String roomName;
 
     ProgressBar pgsBar;
+    KeyedAppStatesReporter reporter;
 
     private final ScreenCapturer.Listener screenCapturerListener =
             new ScreenCapturer.Listener() {
@@ -98,10 +101,11 @@ public class ScreenCapturerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_screen_capturer);
 //        localVideoView = (VideoView) findViewById(R.id.local_video);
+        reporter = KeyedAppStatesReporter.create(this);
+
         if (Build.VERSION.SDK_INT >= 29) {
             screenCapturerManager = new ScreenCapturerManager(this);
         }
-        mFunctions = FirebaseFunctions.getInstance();
         pgsBar = (ProgressBar)findViewById(R.id.pBar);
         pgsBar.setVisibility(View.GONE);
 
@@ -125,7 +129,39 @@ public class ScreenCapturerActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
         }
+
+        // Retrieving the value using its keys the file name must be same in both saving and retrieving the data
+        SharedPreferences sh = getSharedPreferences("MySharedPref", Context.MODE_PRIVATE);
+        // The value will be default as empty string because for the very
+        // first time when the app is opened, there is nothing to show
+        String s1 = sh.getString("fcmToken", "");
+        sendRegistrationToServer(s1);
     }
+
+    private void sendRegistrationToServer(String token) {
+        final String[] message = {"null"};
+        Collection states = new HashSet<KeyedAppState>();
+        states.add(KeyedAppState.builder()
+                .setKey("fcmToken")
+                .setSeverity(KeyedAppState.SEVERITY_INFO)
+                .setMessage("FCM token updated")
+                .setData(token)
+                .build());
+        reporter.setStatesImmediate(states, new KeyedAppStatesCallback() {
+            @Override
+            public void onResult(int state, @Nullable Throwable throwable) {
+                if (state == KeyedAppStatesCallback.STATUS_SUCCESS) {
+                    message[0] = new String("Values sent to KAS");
+                    Log.d(TAG, "Values sent to KAS");
+                } else {
+                    message[0] = "Failed to write to KAS";
+                    Log.d(TAG, "Failed to write to KAS");
+                }
+            }
+        });
+        Toast.makeText(getApplicationContext(), message[0], Toast.LENGTH_LONG).show();//display the response on screen
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -148,14 +184,6 @@ public class ScreenCapturerActivity extends AppCompatActivity {
             case R.id.share_screen_menu_item:
                 String shareScreen = getString(R.string.share_screen);
                 if (item.getTitle().equals(shareScreen)) {
-//                    if (Build.VERSION.SDK_INT >= 29) {
-//                        screenCapturerManager.startForeground();
-//                    }
-//                    if (screenCapturer == null) {
-//                        requestScreenCapturePermission();
-//                    } else {
-//                        startScreenCapture();
-//                    }
                     try {
                         getData("TestRoom", "TestUser");
                     } catch (JSONException e) {

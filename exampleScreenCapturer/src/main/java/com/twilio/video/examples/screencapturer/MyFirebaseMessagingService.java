@@ -6,14 +6,17 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.enterprise.feedback.KeyedAppState;
+import androidx.enterprise.feedback.KeyedAppStatesCallback;
 import androidx.enterprise.feedback.KeyedAppStatesReporter;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
@@ -101,15 +104,36 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
     private void sendRegistrationToServer(String token) {
         // TODO: Implement this method to send token to your app server.
         reporter = KeyedAppStatesReporter.create(this);
-        Collection states = new HashSet<>();
+        Collection states = new HashSet<KeyedAppState>();
         states.add(KeyedAppState.builder()
                 .setKey("fcmToken")
                 .setSeverity(KeyedAppState.SEVERITY_INFO)
                 .setMessage("FCM token updated")
                 .setData(token)
                 .build());
-        reporter.setStatesImmediate(states);
+       reporter.setStatesImmediate(states, new KeyedAppStatesCallback() {
+           @Override
+           public void onResult(int state, @Nullable Throwable throwable) {
+               if (state == KeyedAppStatesCallback.STATUS_SUCCESS) {
+                   Log.d(TAG, "Values sent to KAS");
+               } else {
+                   Log.d(TAG, "Failed to write to KAS");
+               }
+           }
+       });
+
+        // Storing data into SharedPreferences
+        SharedPreferences sharedPreferences = getSharedPreferences("MySharedPref",MODE_PRIVATE);
+        // Creating an Editor object to edit(write to the file)
+        SharedPreferences.Editor myEdit = sharedPreferences.edit();
+        // Storing the key and its value as the data fetched from edittext
+        myEdit.putString("fcmToken", token);
+        // Once the changes have been made, we need to commit to apply those changes made,
+        // otherwise, it will throw an error
+        myEdit.apply();
     }
+
+
 
     private void sendNotification(String messageBody) {
         Intent intent = new Intent(this, ScreenCapturerActivity.class);

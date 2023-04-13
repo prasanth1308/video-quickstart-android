@@ -14,8 +14,8 @@ android {
         applicationId 'com.tamemm.twilio.demo'
         minSdkVersion 23
         targetSdkVersion versions.targetSdk
-        versionCode 3200
-        versionName '3.2.0'
+        versionCode 3600
+        versionName '3.6.0'
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -42,14 +42,13 @@ dependencies {
 
     implementation "com.android.volley:volley:1.2.1"     // adding volley dependency
 
-    implementation 'androidx.enterprise:enterprise-feedback:1.0.0'
+    implementation 'androidx.enterprise:enterprise-feedback:1.1.0'
 
     // Import the Firebase BoM
     implementation platform('com.google.firebase:firebase-bom:31.4.0')
 
     // When using the BoM, you don't specify versions in Firebase library dependencies
 
-    implementation 'com.google.firebase:firebase-functions'
     implementation 'com.google.firebase:firebase-messaging'
 
     // TODO: Add the dependencies for any other Firebase products you want to use
