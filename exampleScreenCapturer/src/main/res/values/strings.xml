@@ -6,5 +6,11 @@
     <string name="stop_screen_share">Stop screen share</string>
     <string name="screen_capture_permission_not_granted">Screen capture permission not granted</string>
     <string name="screen_capture_error">Screen capturer error occurred.</string>
+    <string name="send">Send</string>
+    <string name="driving">Driving</string>
+    <string name="off">OFF</string>
+    <string name="on">ON</string>
+    <string name="drivingOn">Driving On</string>
+    <string name="drivingOff">Driving Off</string>
 
 </resources>
