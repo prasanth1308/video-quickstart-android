@@ -1,1 +1,2 @@
-include ':common', ':quickstart', ':exampleCustomAudioDevice', ':exampleCustomVideoCapturer', ':exampleCustomVideoSink', ':exampleScreenCapturer', ':exampleAdvancedCameraCapturer', ':exampleVideoInvite', ':exampleDataTrack', ':quickstartKotlin', ':exampleAudioSink'
+// include ':common', ':quickstart', ':exampleCustomAudioDevice', ':exampleCustomVideoCapturer', ':exampleCustomVideoSink', ':exampleScreenCapturer', ':exampleAdvancedCameraCapturer', ':exampleVideoInvite', ':exampleDataTrack', ':quickstartKotlin', ':exampleAudioSink'
+include ':exampleScreenCapturer'

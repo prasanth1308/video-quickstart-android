@@ -1,4 +1,4 @@
-package com.twilio.video.examples.screencapturer;
+package com.tamemm.twilio.demo;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
@@ -6,20 +6,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.media.projection.MediaProjectionManager;
 import android.os.Build;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
 import androidx.enterprise.feedback.KeyedAppState;
 import androidx.enterprise.feedback.KeyedAppStatesCallback;
 import androidx.enterprise.feedback.KeyedAppStatesReporter;
 
 import android.os.Handler;
-import android.os.Parcelable;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,18 +29,13 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.VolleyLog;
-import com.android.volley.toolbox.HttpHeaderParser;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.twilio.video.ConnectOptions;
 import com.twilio.video.LocalAudioTrack;
@@ -58,19 +50,13 @@ import com.twilio.video.Room;
 import com.twilio.video.ScreenCapturer;
 import com.twilio.video.TwilioException;
 import com.twilio.video.Video;
-import com.twilio.video.VideoView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
-import java.nio.ByteBuffer;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.Objects;
 
 /** This example demonstrates how to use the screen capturer */
@@ -88,7 +74,7 @@ public class ScreenCapturerActivity extends AppCompatActivity {
 
     private RequestQueue mRequestQueue;
     private StringRequest mStringRequest;
-    private String url = "https://twilio-dot-app-launcher-dev-5ef0fa0a.uc.r.appspot.com/token";
+    private String url = "https://twilio-dot-app-launcher-dev-5ef0fa0a.uc.r.appspot.com/token?identity=BBBB";
 
     String tokenValue;
     String roomName;
@@ -105,11 +91,7 @@ public class ScreenCapturerActivity extends AppCompatActivity {
                 public void onScreenCaptureError(@NonNull String errorDescription) {
                     Log.e(TAG, "Screen capturer error: " + errorDescription);
                     stopScreenCapture();
-                    Toast.makeText(
-                                    ScreenCapturerActivity.this,
-                                    R.string.screen_capture_error,
-                                    Toast.LENGTH_LONG)
-                            .show();
+                    Toast.makeText(ScreenCapturerActivity.this, R.string.screen_capture_error, Toast.LENGTH_LONG).show();
                 }
 
                 @Override
@@ -228,26 +210,23 @@ public class ScreenCapturerActivity extends AppCompatActivity {
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.share_screen_menu_item:
-                String shareScreen = getString(R.string.share_screen);
-                if (item.getTitle().equals(shareScreen)) {
-                    try {
-                        getData("LC03lkiust_R9BMC02257J", "TestUser");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    if (Build.VERSION.SDK_INT >= 29) {
-                        screenCapturerManager.endForeground();
-                    }
-                    stopScreenCapture();
+        if (item.getItemId() == R.id.share_screen_menu_item) {
+            String shareScreen = getString(R.string.share_screen);
+            if (item.getTitle().equals(shareScreen)) {
+                try {
+                    getData("LC03lkiust_R9BMC02257J", "TestUser");
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
+            } else {
+                if (Build.VERSION.SDK_INT >= 29) {
+                    screenCapturerManager.endForeground();
+                }
+                stopScreenCapture();
+            }
+            return true;
         }
+        return super.onOptionsItemSelected(item);
     }
 
     private void handleScreenShareTrigger() {
@@ -285,11 +264,7 @@ public class ScreenCapturerActivity extends AppCompatActivity {
             if (resultCode != AppCompatActivity.RESULT_OK) {
                 Log.i(TAG,  " onActivityResult NOT Ok" + resultCode);
                 handleDeclineEvent("DECLINE", "USER_CANCELS");
-                Toast.makeText(
-                                this,
-                                R.string.screen_capture_permission_not_granted,
-                                Toast.LENGTH_LONG)
-                        .show();
+                Toast.makeText(this, R.string.screen_capture_permission_not_granted, Toast.LENGTH_LONG).show();
                 return;
             }
 
@@ -310,7 +285,7 @@ public class ScreenCapturerActivity extends AppCompatActivity {
         String jObjectDataString = jObjectData.toString();
         Log.i(TAG,  "Send DataTrack jObjectDataString " + jObjectDataString);
         sendMessageToDataTrack(jObjectDataString, true);
-    };
+    }
 
     private void startScreenCapture() {
         screenVideoTrack = LocalVideoTrack.create(this, true, screenCapturer);
@@ -362,22 +337,12 @@ public class ScreenCapturerActivity extends AppCompatActivity {
         final String mRequestBody = jsonBody.toString();
 
         // String Request initialized
-        mStringRequest = new StringRequest(Request.Method.POST, url, new Response.Listener<String>() {
+        mStringRequest = new StringRequest(Request.Method.GET, url, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 Log.i(TAG, "Success getData :" + response);
-                JSONObject jsonobject = null;
-                try {
-                    jsonobject = new JSONObject(response);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    tokenValue = jsonobject.getString("token");
-                    connectToRoom(roomName, tokenValue);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                tokenValue = response;
+                connectToRoom(roomName, tokenValue);
                 pgsBar.setVisibility(View.GONE);
             }
         }, new Response.ErrorListener() {

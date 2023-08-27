@@ -1,4 +1,4 @@
-package com.twilio.video.examples.screencapturer;
+package com.tamemm.twilio.demo;
 
 import android.annotation.TargetApi;
 import android.content.ComponentName;

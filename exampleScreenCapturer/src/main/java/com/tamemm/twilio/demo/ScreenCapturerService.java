@@ -1,4 +1,4 @@
-package com.twilio.video.examples.screencapturer;
+package com.tamemm.twilio.demo;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
@@ -11,7 +11,6 @@ import android.os.Binder;
 import android.os.IBinder;
 //import android.support.v4.app.NotificationCompat;
 import androidx.core.app.NotificationCompat;
-
 
 @TargetApi(29)
 public class ScreenCapturerService extends Service {

@@ -1,4 +1,4 @@
-package com.twilio.video.examples.screencapturer;
+package com.tamemm.twilio.demo;
 
 
 import android.app.NotificationChannel;
@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Parcelable;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -26,9 +25,6 @@ import androidx.work.WorkerParameters;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.Collection;
 import java.util.HashSet;
