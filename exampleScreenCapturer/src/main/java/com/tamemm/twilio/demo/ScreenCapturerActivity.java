@@ -66,7 +66,6 @@ public class ScreenCapturerActivity extends AppCompatActivity {
 
     private LocalParticipant localParticipant;
     private LocalDataTrack localDataTrack;
-    private LocalVideoTrack screenVideoTrack;
     private ScreenCapturer screenCapturer;
     private MenuItem screenCaptureMenuItem;
     private ScreenCapturerManager screenCapturerManager;
@@ -74,7 +73,7 @@ public class ScreenCapturerActivity extends AppCompatActivity {
 
     private RequestQueue mRequestQueue;
     private StringRequest mStringRequest;
-    private String url = "https://twilio-dot-app-launcher-dev-5ef0fa0a.uc.r.appspot.com/token?identity=BBBB";
+    private String url = "https://twilio-dot-app-launcher-dev-5ef0fa0a.uc.r.appspot.com/token?identity=Vivek";
 
     String tokenValue;
     String roomName;
@@ -214,7 +213,7 @@ public class ScreenCapturerActivity extends AppCompatActivity {
             String shareScreen = getString(R.string.share_screen);
             if (item.getTitle().equals(shareScreen)) {
                 try {
-                    getData("LC03lkiust_R9BMC02257J", "TestUser");
+                    getData("Vivek23", "Vivek");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -288,7 +287,7 @@ public class ScreenCapturerActivity extends AppCompatActivity {
     }
 
     private void startScreenCapture() {
-        screenVideoTrack = LocalVideoTrack.create(this, true, screenCapturer);
+        LocalVideoTrack screenVideoTrack = LocalVideoTrack.create(this, true, screenCapturer);
         screenCaptureMenuItem.setIcon(R.drawable.ic_stop_screen_share_white_24dp);
         screenCaptureMenuItem.setTitle(R.string.stop_screen_share);
         Log.i(TAG,  " startScreenCapture roomName " + roomName);
@@ -299,9 +298,8 @@ public class ScreenCapturerActivity extends AppCompatActivity {
     }
 
     private void stopScreenCapture() {
-        if (screenVideoTrack != null) {
-            screenVideoTrack.release();
-            screenVideoTrack = null;
+        if (screenCapturer != null) {
+            screenCapturer = null;
             screenCaptureMenuItem.setIcon(R.drawable.ic_screen_share_white_24dp);
             screenCaptureMenuItem.setTitle(R.string.share_screen);
         }
@@ -312,10 +310,6 @@ public class ScreenCapturerActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        if (screenVideoTrack != null) {
-            screenVideoTrack.release();
-            screenVideoTrack = null;
-        }
         if (Build.VERSION.SDK_INT >= 29) {
             screenCapturerManager.unbindService();
         }
