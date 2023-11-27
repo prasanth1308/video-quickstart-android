@@ -65,6 +65,7 @@ public class ScreenCapturerActivity extends AppCompatActivity {
     private static final int REQUEST_MEDIA_PROJECTION = 100;
 
     private LocalParticipant localParticipant;
+    private LocalVideoTrack screenVideoTrack;
     private LocalDataTrack localDataTrack;
     private ScreenCapturer screenCapturer;
     private MenuItem screenCaptureMenuItem;
@@ -287,7 +288,7 @@ public class ScreenCapturerActivity extends AppCompatActivity {
     }
 
     private void startScreenCapture() {
-        LocalVideoTrack screenVideoTrack = LocalVideoTrack.create(this, true, screenCapturer);
+        screenVideoTrack = LocalVideoTrack.create(this, true, screenCapturer);
         screenCaptureMenuItem.setIcon(R.drawable.ic_stop_screen_share_white_24dp);
         screenCaptureMenuItem.setTitle(R.string.stop_screen_share);
         Log.i(TAG,  " startScreenCapture roomName " + roomName);
@@ -299,6 +300,8 @@ public class ScreenCapturerActivity extends AppCompatActivity {
 
     private void stopScreenCapture() {
         if (screenCapturer != null) {
+            screenVideoTrack.release();
+            screenVideoTrack = null;
             screenCapturer = null;
             screenCaptureMenuItem.setIcon(R.drawable.ic_screen_share_white_24dp);
             screenCaptureMenuItem.setTitle(R.string.share_screen);
